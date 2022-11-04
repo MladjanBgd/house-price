@@ -9,7 +9,7 @@ Created on Fri Nov  4 13:03:28 2022
 #git add .
 #git commit -m "..."
 #git remote add origin https://github.com/MladjanBgd/house-price
-#git push origin master
+#git push -u origin master
 
 import numpy as np
 import pandas as pd
