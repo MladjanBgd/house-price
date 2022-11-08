@@ -175,43 +175,67 @@ for col in ds:
     
 ds_enc=pd.get_dummies(ds, columns=objCol)
 
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+import joblib
 
-y = ds_enc.loc[0:1459, 'SalePrice']
-X = ds_enc.loc[0:1459, :]
+y = ds_enc.loc[0:1460, 'SalePrice']
+X = ds_enc.loc[0:1460, :]
 X = X.drop('SalePrice', axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=1337, shuffle=True)
 
 rf = RandomForestRegressor()
 
-param_grid = {'n_estimators': [50,100,200,250,300],
+param_grid = {'n_estimators': [250,300,400],
               "criterion" : ["squared_error", "absolute_error"],
-              "max_depth": [12,13,14,15],
-              "min_samples_split": [17,18,19,20],
-              "min_samples_leaf": [2,3,4,5]}
+              "max_depth": [16,17,18,19],
+              "min_samples_split": [15, 16, 17,18],
+              "min_samples_leaf": [1,2,3,4]}
 
-gs_cv = GridSearchCV(estimator=rf, param_grid=param_grid)
-gs_cv = gs_cv.fit(X,y)
-print(gs_cv.best_params_)
+###GridSearchCV to slow because of num of dimensions -> using RandomizedSearchCV
+rs_cv = RandomizedSearchCV(estimator=rf, n_iter=20,
+                           param_distributions=param_grid, cv=5, n_jobs=-1,
+                           random_state=42, scoring='neg_mean_squared_error', verbose=10)
+res = rs_cv.fit(X_train, y_train)
+
+print(res.best_params_)
+print((-1 * res.best_score_) ** 0.5)
 
 # # # """
-# # # {'criterion': 'entropy', 'max_depth': 14, 'min_samples_leaf': 3, 'min_samples_split': 18, 'n_estimators': 200}
+# # # {'n_estimators': 300, 'min_samples_split': 16, 'min_samples_leaf': 2, 'max_depth': 17, 'criterion': 'squared_error'}
 # # # """
-
-# from sklearn.model_selection import train_test_split
-
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=1337)
+joblib.dump(res.best_estimator_, 'rs_cv_m.pkl')
 
 
-# rf = RandomForestClassifier(n_estimators=200, criterion='entropy', max_depth=14, min_samples_split=18, min_samples_leaf=3)
-# rf.fit(X_train, y_train)
 
-# y_pred= rf.predict(X_test)
+# rf=RandomForestRegressor(n_estimators=50, criterion='squared_error', max_depth=12, min_samples_split=20, min_samples_leaf=2)
+# rf=rf.fit(X,y)
 
-# from sklearn.metrics import classification_report
+# y_pred=rf.predict(X)
+# y_test=y
 
-# report=classification_report(y_test, y_pred)
-# print(report)
+# mse = mean_squared_error(y_test, y_pred)
+# rmse = mse**.5
+# print(mse)
+# print(rmse)
+
+
+# # y_test = ds_enc.loc[1460:2919, 'SalePrice']
+# # X_test = ds_enc.loc[1460:2919, :]
+# # X_test = X_test.drop('SalePrice', axis=1)
+
+# # y_pred=rf.predict(X_test)
+
+
+# # fin=pd.DataFrame(X_test.loc[:,'Id'])
+# # fin['SalePrice'] = y_pred
+
+# # save_file=fin.to_csv('./sample_submission.csv', index=False)
+
+
+
 
 
 
