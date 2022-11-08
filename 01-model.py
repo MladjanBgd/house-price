@@ -188,14 +188,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_
 
 rf = RandomForestRegressor()
 
-param_grid = {'n_estimators': [250,300,400],
+param_grid = {'n_estimators': [300,400,500],
               "criterion" : ["squared_error", "absolute_error"],
-              "max_depth": [16,17,18,19],
+              "max_depth": [16,17,18,19,20,21],
               "min_samples_split": [15, 16, 17,18],
               "min_samples_leaf": [1,2,3,4]}
 
 ###GridSearchCV to slow because of num of dimensions -> using RandomizedSearchCV
-rs_cv = RandomizedSearchCV(estimator=rf, n_iter=20,
+rs_cv = RandomizedSearchCV(estimator=rf, n_iter=10,
                            param_distributions=param_grid, cv=5, n_jobs=-1,
                            random_state=42, scoring='neg_mean_squared_error', verbose=10)
 res = rs_cv.fit(X_train, y_train)
@@ -203,8 +203,9 @@ res = rs_cv.fit(X_train, y_train)
 print(res.best_params_)
 print((-1 * res.best_score_) ** 0.5)
 
+
 # # # """
-# # # {'n_estimators': 300, 'min_samples_split': 16, 'min_samples_leaf': 2, 'max_depth': 17, 'criterion': 'squared_error'}
+# # # {'n_estimators': 400, 'min_samples_split': 17, 'min_samples_leaf': 1, 'max_depth': 19, 'criterion': 'squared_error'}
 # # # """
 joblib.dump(res.best_estimator_, 'rs_cv_m.pkl')
 
