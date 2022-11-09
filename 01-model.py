@@ -184,56 +184,55 @@ y = ds_enc.loc[0:1460, 'SalePrice']
 X = ds_enc.loc[0:1460, :]
 X = X.drop('SalePrice', axis=1)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=1337, shuffle=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.05, random_state=1337, shuffle=True)
 
-rf = RandomForestRegressor()
+# rf = RandomForestRegressor()
 
-param_grid = {'n_estimators': [300,400,500],
-              "criterion" : ["squared_error", "absolute_error"],
-              "max_depth": [16,17,18,19,20,21],
-              "min_samples_split": [15, 16, 17,18],
-              "min_samples_leaf": [1,2,3,4]}
+# param_grid = {'n_estimators': [300,400,500],
+#               "criterion" : ["squared_error", "absolute_error"],
+#               "max_depth": [16,17,18,19,20,21],
+#               "min_samples_split": [15, 16, 17,18],
+#               "min_samples_leaf": [1,2,3,4]}
 
-###GridSearchCV to slow because of num of dimensions -> using RandomizedSearchCV
-rs_cv = RandomizedSearchCV(estimator=rf, n_iter=10,
-                           param_distributions=param_grid, cv=5, n_jobs=-1,
-                           random_state=42, scoring='neg_mean_squared_error', verbose=10)
-res = rs_cv.fit(X_train, y_train)
+# ###GridSearchCV to slow because of num of dimensions -> using RandomizedSearchCV
+# rs_cv = RandomizedSearchCV(estimator=rf, n_iter=10,
+#                            param_distributions=param_grid, cv=5, n_jobs=-1,
+#                            random_state=42, scoring='neg_mean_squared_error', verbose=10)
+# res = rs_cv.fit(X_train, y_train)
 
-print(res.best_params_)
-print((-1 * res.best_score_) ** 0.5)
-
-
-# # # """
-# # # {'n_estimators': 400, 'min_samples_split': 17, 'min_samples_leaf': 1, 'max_depth': 19, 'criterion': 'squared_error'}
-# # # """
-joblib.dump(res.best_estimator_, 'rs_cv_m.pkl')
+# print(res.best_params_)
+# print((-1 * res.best_score_) ** 0.5)
 
 
-
-# rf=RandomForestRegressor(n_estimators=50, criterion='squared_error', max_depth=12, min_samples_split=20, min_samples_leaf=2)
-# rf=rf.fit(X,y)
-
-# y_pred=rf.predict(X)
-# y_test=y
-
-# mse = mean_squared_error(y_test, y_pred)
-# rmse = mse**.5
-# print(mse)
-# print(rmse)
+# # # # """
+# # # # {'n_estimators': 400, 'min_samples_split': 17, 'min_samples_leaf': 1, 'max_depth': 19, 'criterion': 'squared_error'}
+# # # # """
+# joblib.dump(res.best_estimator_, 'rs_cv_m.pkl')
 
 
-# # y_test = ds_enc.loc[1460:2919, 'SalePrice']
-# # X_test = ds_enc.loc[1460:2919, :]
-# # X_test = X_test.drop('SalePrice', axis=1)
 
-# # y_pred=rf.predict(X_test)
+rf=RandomForestRegressor(n_estimators=50, criterion='squared_error', max_depth=12, min_samples_split=20, min_samples_leaf=2)
+rf=rf.fit(X_train,y_train)
+
+y_pred=rf.predict(X_test)
+
+mse = mean_squared_error(y_test, y_pred)
+rmse = mse**.5
+print(mse)
+print(rmse)
 
 
-# # fin=pd.DataFrame(X_test.loc[:,'Id'])
-# # fin['SalePrice'] = y_pred
+y_res = ds_enc.loc[1460:2919, 'SalePrice']
+X_res = ds_enc.loc[1460:2919, :]
+X_res = X_res.drop('SalePrice', axis=1)
 
-# # save_file=fin.to_csv('./sample_submission.csv', index=False)
+y_res=rf.predict(X_res)
+
+
+res=pd.DataFrame(X_res.loc[:,'Id'])
+res['SalePrice'] = y_res
+
+save_res=res.to_csv('./sample_submission.csv', index=False)
 
 
 
