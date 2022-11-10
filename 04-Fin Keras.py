@@ -153,11 +153,30 @@ def basic_model_8(x_size, y_size):
         metrics=[metrics.mae])
     return t_model
 
-model = basic_model_8(X_train.shape[1], y_train.shape[0])
+
+def basic_model_9(x_size, y_size):
+    t_model = Sequential()
+    t_model.add(Dense(400, activation="elu", input_shape=(x_size,)))
+    #t_model.add(Dropout(0.1))
+    t_model.add(Dense(400, activation="elu"))
+    #t_model.add(Dropout(0.1))
+    t_model.add(Dense(20, activation="elu"))
+    t_model.add(Dense(50, activation="elu"))
+    t_model.add(Dense(y_size))
+    t_model.compile(loss='mean_squared_error',
+        optimizer=Adam(),
+        metrics=[metrics.mae])
+    return t_model
+
+
+
+model = basic_model_9(X_train.shape[1], y_train.shape[0])
 #model.summary()
 
 epochs = 500
+#batch_size = 128
 batch_size = 128
+
 
 print('Epochs: ', epochs)
 print('Batch size: ', batch_size)
