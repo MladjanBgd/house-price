@@ -221,6 +221,10 @@ rmse = mse**.5
 print(mse)
 print(rmse)
 
+"""
+562 330 286.2862304
+23713.504302110865
+"""
 
 y_res = ds_enc.loc[1460:2919, 'SalePrice']
 X_res = ds_enc.loc[1460:2919, :]
